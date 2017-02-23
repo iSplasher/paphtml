@@ -90,3 +90,4 @@ ENV/
 /pap-env
 /.vs
 *.pyproj
+*.sln
