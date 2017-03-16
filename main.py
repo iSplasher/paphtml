@@ -2,7 +2,7 @@ import cv2
 import imutils
 import numpy as np
 
-img = "test5.png"
+img = "test4.png"
 
 image = imutils.resize(cv2.imread(img), width=800) # load image
 modified = image.copy()
