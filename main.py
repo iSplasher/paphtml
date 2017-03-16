@@ -2,7 +2,7 @@ import cv2
 import imutils
 import numpy as np
 
-img = "test2.jpg"
+img = "test5.png"
 
 image = imutils.resize(cv2.imread(img), width=800) # load image
 modified = image.copy()
@@ -39,14 +39,6 @@ def draw_contour():
         #M = cv2.moments(c)
         #cX = int((M["m10"] / M["m00"]))
         #cY = int((M["m01"] / M["m00"]))
-
-        epsilon = 0.1*cv2.arcLength(c,True)
-        approx = cv2.approxPolyDP(c,epsilon,True)
-
-        # multiply the contour (x, y)-coordinates by the resize ratio,
-        # then draw the contours and the name of the shape on the image
-        c = c.astype("float")
-        c = c.astype("int")
 
         cv2.drawContours(modified, [c], 0, (0, 255, 0), 2)
 
