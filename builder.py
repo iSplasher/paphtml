@@ -110,3 +110,13 @@ def generatefiles(html, css, dir="website/static"):
             f.write(content)
 
     return tuple(files)
+
+def set_css_css(html, path_to_css):
+    
+    for e in html.children:
+        if e.name == 'head':
+            for h in e.children:
+                if h.name == 'style':
+                    h.attributes['href'] = path_to_css
+    return html
+
