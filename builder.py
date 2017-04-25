@@ -1,6 +1,6 @@
 import pyhtml
 import tempfile
-from enum import Enum
+import os
 
 class Shape:
     ""
@@ -22,14 +22,17 @@ class Rect(Shape):
         self.y = y
         self.w = w
         self.h = h
+        self.border = None
+        self.color = None
 
     def css(self, id):
         c = "#{} {{ \n".format(id) \
             + "position: absolute; \n" \
-            + "left: {}; \n".format(self.x) \
-            + "top: {}; \n".format(self.y) \
-            + "width: {}; \n".format(self.w) \
-            + "height: {}; \n".format(self.h) \
+            + "left: {}px; \n".format(self.x) \
+            + "top: {}px; \n".format(self.y) \
+            + "width: {}px; \n".format(self.w) \
+            + "height: {}px; \n".format(self.h) \
+            + "border: 2px solid red; \n".format(self.h) \
             + "}\n"
         return c
 
@@ -81,7 +84,7 @@ def build_html(shapes=None):
     head = pyhtml.head(
             pyhtml.meta(charset="utf-8"),
             pyhtml.title("DrawHTML"),
-            pyhtml.style(rel="stylesheet", href="PATH/TO/CSS")
+            pyhtml.link(rel="stylesheet", href="PATH/TO/CSS")
         )
     divs = [x.html for x in elements if x.html],
     body = pyhtml.body(*divs)
@@ -91,32 +94,40 @@ def build_html(shapes=None):
         body
         )
 
-    css = ""
+    css = "* {" \
+        + "margin: 0;" \
+        + "padding: 0;" \
+        + "}\n"
+
     for x in elements:
         css += x.css
 
     return h, css
 
 
-def generatefiles(html, css, dir="website/static"):
+def generatefiles(html, css, dir="website/static", include_css=True):
     "Generates a .html and .css file. Returns tuple with paths"
 
     files = []
 
-    for content, suffix in ((html.render(), ".html"), (css, ".css")):
-        handle, path = tempfile.mkstemp(suffix, dir=dir)
-        files.append(path)
-        with open(path, "w") as f:
-            f.write(content)
+    _, css_path = tempfile.mkstemp(".css", dir=dir)
+    with open(css_path, "w") as f:
+        f.write(css)
 
-    return tuple(files)
+    if include_css:
+        html = set_css_attr(html, os.path.split(css_path)[1])
+    _, html_path = tempfile.mkstemp(".html", dir=dir)
+    with open(html_path, "w") as f:
+        f.write(html.render())
 
-def set_css_css(html, path_to_css):
+    return html_path, css_path
+
+def set_css_attr(html, path_to_css):
     
     for e in html.children:
         if e.name == 'head':
             for h in e.children:
-                if h.name == 'style':
+                if h.name == 'link':
                     h.attributes['href'] = path_to_css
     return html
 
