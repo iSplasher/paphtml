@@ -22,7 +22,6 @@ class Rect(Shape):
         self.y = y
         self.w = w
         self.h = h
-        self.border = None
         self.color = None
 
     def css(self, id):
@@ -32,7 +31,9 @@ class Rect(Shape):
             + "top: {}px; \n".format(self.y) \
             + "width: {}px; \n".format(self.w) \
             + "height: {}px; \n".format(self.h) \
-            + "border: 2px solid red; \n".format(self.h) \
+            + "border: 1px solid red; \n".format(self.h) \
+            + ("" if not self.color else "background-color: rgb({}, {}, {}); \n".format(self.color[0], self.color[1], self.color[2])) \
+            + 'content: " "' \
             + "}\n"
         return c
 
@@ -54,7 +55,7 @@ class Element:
         self.html = None
 
 
-def build_html(shapes=None):
+def build_html(shapes=None, body_width=1000):
     """
     """
     assert isinstance(shapes, (tuple, list))
@@ -70,11 +71,12 @@ def build_html(shapes=None):
 
     elements = []
 
+
     for n, shape in enumerate(shapes):
         assert isinstance(shape, Shape)
         el_id = shape.name+str(n)
         el = Element(el_id)
-        el.html = pyhtml.div(id=el_id)("content")
+        el.html = pyhtml.div(id=el_id)
         el.css = shape.css(el_id)
 
         elements.append(el)
@@ -86,8 +88,23 @@ def build_html(shapes=None):
             pyhtml.title("DrawHTML"),
             pyhtml.link(rel="stylesheet", href="PATH/TO/CSS")
         )
-    divs = [x.html for x in elements if x.html],
-    body = pyhtml.body(*divs)
+    divs = [x.html for x in elements if x.html]
+
+    root_id = "root"
+    root_el = Element(root_id)
+    root_el.html = pyhtml.div(*divs)
+    root_el.css =  "#{} {{ \n".format(root_id) \
+            + "position: absolute; \n" \
+            + "left: 0px; \n" \
+            + "right: 0px; \n" \
+            + "margin-right: auto; \n" \
+            + "margin-left: auto; \n" \
+            + "width: {}px; \n".format(body_width) \
+            + "}\n"
+    root_el.html.attributes['id'] = root_id
+    elements.append(root_el)
+
+    body = pyhtml.body(root_el.html)
 
     h = pyhtml.html(
         head,
